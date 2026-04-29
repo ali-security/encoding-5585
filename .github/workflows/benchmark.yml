@@ -1,7 +1,6 @@
----
 name: Benchmark
 
-"on":
+on:
   - pull_request
 
 jobs:
@@ -12,13 +11,13 @@ jobs:
           - master
           - ${{ github.sha }}
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: "1.21"
+          go-version: '1.21'
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -30,20 +29,20 @@ jobs:
         run: go test -v -run '^$' -bench '(Marshal|Unmarshal)$/codeResponse' -benchmem -benchtime 3s -cpu 1 -count 6 ./json | tee bench.txt
 
       - name: Upload Benchmarks
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.ref }}
           path: bench.txt
 
   benchstat:
     needs: [benchmark]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Steup Go
         uses: actions/setup-go@v2
         with:
-          go-version: "1.21"
+          go-version: '1.21'
 
       - name: Setup Benchstat
         run: go install golang.org/x/perf/cmd/benchstat@latest
@@ -57,7 +56,7 @@ jobs:
         run: benchstat ./master/bench.txt ./${{ github.sha }}/bench.txt | tee benchstat.txt
 
       - name: Upload Benchstat Results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: benchstat
           path: benchstat.txt
